@@ -1,7 +1,7 @@
-export default function Button({ params }) {
-  return <button></button>;
-  // window.scrollTo({
-  //   top: document.documentElement.scrollHeight,
-  //   behavior: 'smooth',
-  // });
+export default function Button({ onClick }) {
+  return (
+    <button className="Button" type="button" onClick={onClick}>
+      Показать ещё
+    </button>
+  );
 }

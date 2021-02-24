@@ -169,6 +169,7 @@ img {
 * Стили компонента Buton (Load more)
 */
 .Button {
+  margin: 10px 45% 10px 45%;
   padding: 8px 16px;
   border-radius: 2px;
   background-color: #3f51b5;
@@ -192,4 +193,9 @@ img {
 .Button:hover,
 .Button:focus {
   background-color: #303f9f;
+}
+
+/* Стили лоадера */
+.Loader {
+  margin: 10px 45% 10px 45%;
 }

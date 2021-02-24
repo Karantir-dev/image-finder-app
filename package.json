@@ -2,7 +2,7 @@
   "name": "react_starter_repo",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://Somelier4ik.github.io/react_starter_repo",
+  "homepage": "https://Somelier4ik.github.io/goit-react-hw-03-image-finder",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
@@ -10,6 +10,7 @@
     "modern-normalize": "^1.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-loader-spinner": "^4.0.0",
     "react-scripts": "4.0.3",
     "react-toastify": "^7.0.3",
     "web-vitals": "^1.1.0"
