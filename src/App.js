@@ -17,13 +17,16 @@ export default class App extends Component {
     photos: [],
     searchQuery: '',
     status: 'idle',
-    pageNumber: 0,
-    // pending, rejected, resolved
+    pageNumber: 1,
   };
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.searchQuery !== prevState.searchQuery) {
-      this.setState({ photos: [], pageNumber: 0 });
+      this.setState(() => {
+        return { photos: [], pageNumber: 1 };
+      });
+
+      // де викликати метод fetchPhotos() щоб він запускався після setState що стоїть вище
 
       this.fetchPhotos();
     }
@@ -34,16 +37,17 @@ export default class App extends Component {
     });
   }
 
-  onSubmitSearchQuery = searchQuery => {
-    this.setState({ searchQuery: searchQuery });
-  };
-
   fetchPhotos = () => {
     const { searchQuery, pageNumber } = this.state;
     const KEY = '19409083-c44dedced2b14f118a69bc1b1';
     const BASE_URL = 'https://pixabay.com/api/';
 
-    this.setState({ pageNumber: pageNumber + 1, status: 'pending' });
+    this.setState(() => {
+      return { status: 'pending' };
+    });
+
+    //  fetch запускається до того як виконаеться setState {pageNumber: 1}
+    //  в componentDidUpdate і бере не актуальне значення pageNumber
 
     return fetch(
       `${BASE_URL}?q=${searchQuery}&page=${pageNumber}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`,
@@ -56,10 +60,10 @@ export default class App extends Component {
         return Promise.reject(new Error('Что-то пошло не так =('));
       })
       .then(response => {
-        this.setState(prevState => ({
-          photos: [...prevState.photos, ...response.hits],
-        }));
-        console.log(this.state.photos);
+        this.setState(prevState => {
+          return { photos: [...prevState.photos, ...response.hits] };
+        });
+
         if (response.hits.length === 0) {
           toast(`Не нашли картинок по запросу: ${searchQuery}`, {
             type: 'warning',
@@ -74,7 +78,16 @@ export default class App extends Component {
 
         this.setState({ status: 'resolved' });
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log(err))
+      .finally(() => {
+        this.setState(() => {
+          return { pageNumber: pageNumber + 1 };
+        });
+      });
+  };
+
+  onSubmitSearchQuery = searchQuery => {
+    this.setState({ searchQuery: searchQuery });
   };
 
   render() {
