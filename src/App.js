@@ -8,7 +8,7 @@ import ImageGallery from './Components/ImageGallery/ImageGallery';
 import Button from './Components/Button/Button';
 import Modal from './Components/Modal/Modal';
 import Loader from 'react-loader-spinner';
-// import pixabayFetch from './services/pixabayAPI';
+import pixabayFetch from './services/pixabayAPI';
 
 import './App.css';
 
@@ -18,17 +18,29 @@ export default class App extends Component {
     searchQuery: '',
     status: 'idle',
     pageNumber: 1,
+    modalShown: false,
+    largeImageUrl: '',
   };
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.searchQuery !== prevState.searchQuery) {
       this.setState(() => {
-        return { photos: [], pageNumber: 1 };
+        return { photos: [] };
       });
 
-      // де викликати метод fetchPhotos() щоб він запускався після setState що стоїть вище
-
       this.fetchPhotos();
+    }
+
+    const onPressEscape = e => {
+      if (e.code === 'Escape') {
+        this.setState({ modalShown: false });
+      }
+    };
+
+    if (this.state.modalShown) {
+      window.addEventListener('keydown', onPressEscape);
+    } else {
+      window.removeEventListener('keydown', onPressEscape);
     }
 
     window.scrollTo({
@@ -39,26 +51,12 @@ export default class App extends Component {
 
   fetchPhotos = () => {
     const { searchQuery, pageNumber } = this.state;
-    const KEY = '19409083-c44dedced2b14f118a69bc1b1';
-    const BASE_URL = 'https://pixabay.com/api/';
 
     this.setState(() => {
       return { status: 'pending' };
     });
 
-    //  fetch запускається до того як виконаеться setState {pageNumber: 1}
-    //  в componentDidUpdate і бере не актуальне значення pageNumber
-
-    return fetch(
-      `${BASE_URL}?q=${searchQuery}&page=${pageNumber}&key=${KEY}&image_type=photo&orientation=horizontal&per_page=12`,
-    )
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        }
-
-        return Promise.reject(new Error('Что-то пошло не так =('));
-      })
+    return pixabayFetch(searchQuery, pageNumber)
       .then(response => {
         this.setState(prevState => {
           return { photos: [...prevState.photos, ...response.hits] };
@@ -70,7 +68,6 @@ export default class App extends Component {
           });
 
           this.setState({ status: 'rejected' });
-
           return Promise.reject(
             new Error(`Не нашли картинок по запросу: ${searchQuery}`),
           );
@@ -80,14 +77,27 @@ export default class App extends Component {
       })
       .catch(err => console.log(err))
       .finally(() => {
-        this.setState(() => {
-          return { pageNumber: pageNumber + 1 };
-        });
+        this.setState(prevState => ({
+          pageNumber: prevState.pageNumber + 1,
+        }));
       });
   };
 
   onSubmitSearchQuery = searchQuery => {
-    this.setState({ searchQuery: searchQuery });
+    this.setState({ searchQuery: searchQuery, pageNumber: 1 });
+  };
+
+  onClickPhoto = e => {
+    const largeImageUrl = this.state.photos.find(
+      photo => photo.webformatURL === e.target.src,
+    ).largeImageURL;
+    this.setState({ modalShown: true, largeImageUrl });
+  };
+
+  onCloseModal = e => {
+    if (e.currentTarget === e.target) {
+      this.setState({ modalShown: false });
+    }
   };
 
   render() {
@@ -97,7 +107,7 @@ export default class App extends Component {
       <div>
         <Searchbar onSubmit={this.onSubmitSearchQuery} />
 
-        <ImageGallery photosArr={photos} />
+        <ImageGallery photosArr={photos} onClickPhoto={this.onClickPhoto} />
 
         {status === 'pending' && (
           <div className="Loader">
@@ -107,7 +117,12 @@ export default class App extends Component {
 
         {status === 'resolved' && <Button onClick={this.fetchPhotos} />}
 
-        <Modal />
+        {this.state.modalShown && (
+          <Modal
+            largeImage={this.state.largeImageUrl}
+            onCloseModal={this.onCloseModal}
+          />
+        )}
 
         <ToastContainer autoClose={4000} />
       </div>

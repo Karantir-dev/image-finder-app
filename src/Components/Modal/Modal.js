@@ -1,8 +1,8 @@
-export default function Modal({ largeImg }) {
+export default function Modal({ largeImage, onCloseModal }) {
   return (
-    <div className="Overlay">
+    <div className="Overlay" onClick={onCloseModal}>
       <div className="Modal">
-        <img src="" alt="" />
+        <img src={largeImage} alt="" />
       </div>
     </div>
   );
