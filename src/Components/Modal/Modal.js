@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 export default function Modal({ largeImage, onCloseModal }) {
   return (
     <div className="Overlay" onClick={onCloseModal}>
@@ -7,3 +9,8 @@ export default function Modal({ largeImage, onCloseModal }) {
     </div>
   );
 }
+
+Modal.propTypes = {
+  largeImage: PropTypes.string,
+  onCloseModal: PropTypes.func,
+};

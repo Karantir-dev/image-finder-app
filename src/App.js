@@ -42,11 +42,6 @@ export default class App extends Component {
     } else {
       window.removeEventListener('keydown', onPressEscape);
     }
-
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
   }
 
   fetchPhotos = () => {
@@ -80,6 +75,11 @@ export default class App extends Component {
         this.setState(prevState => ({
           pageNumber: prevState.pageNumber + 1,
         }));
+
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: 'smooth',
+        });
       });
   };
 
