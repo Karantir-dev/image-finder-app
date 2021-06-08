@@ -19,7 +19,8 @@ export default class App extends Component {
     status: 'idle',
     pageNumber: 1,
     modalShown: false,
-    largeImageUrl: '',
+    largeImageURL: '',
+    tags: '',
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -29,18 +30,6 @@ export default class App extends Component {
       });
 
       this.fetchPhotos();
-    }
-
-    const onPressEscape = e => {
-      if (e.code === 'Escape') {
-        this.setState({ modalShown: false });
-      }
-    };
-
-    if (this.state.modalShown) {
-      window.addEventListener('keydown', onPressEscape);
-    } else {
-      window.removeEventListener('keydown', onPressEscape);
     }
   }
 
@@ -52,12 +41,12 @@ export default class App extends Component {
     });
 
     return pixabayFetch(searchQuery, pageNumber)
-      .then(response => {
+      .then(({ hits }) => {
         this.setState(prevState => {
-          return { photos: [...prevState.photos, ...response.hits] };
+          return { photos: [...prevState.photos, ...hits] };
         });
 
-        if (response.hits.length === 0) {
+        if (hits.length === 0) {
           toast(`Не нашли картинок по запросу: ${searchQuery}`, {
             type: 'warning',
           });
@@ -76,32 +65,31 @@ export default class App extends Component {
           pageNumber: prevState.pageNumber + 1,
         }));
 
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth',
-        });
+        // window.scrollTo({
+        //   top: document.documentElement.scrollHeight,
+        //   behavior: 'smooth',
+        // });
       });
   };
 
   onSubmitSearchQuery = searchQuery => {
-    this.setState({ searchQuery: searchQuery, pageNumber: 1 });
+    this.setState({ searchQuery, pageNumber: 1 });
   };
 
   onClickPhoto = e => {
-    const largeImageUrl = this.state.photos.find(
+    const clickedPhoto = this.state.photos.find(
       photo => photo.webformatURL === e.target.src,
-    ).largeImageURL;
-    this.setState({ modalShown: true, largeImageUrl });
+    );
+    const { largeImageURL, tags } = clickedPhoto;
+    this.setState({ modalShown: true, largeImageURL, tags });
   };
 
-  onCloseModal = e => {
-    if (e.currentTarget === e.target) {
-      this.setState({ modalShown: false });
-    }
+  closeModal = () => {
+    this.setState({ modalShown: false });
   };
 
   render() {
-    const { status, photos } = this.state;
+    const { status, photos, tags, largeImageURL, modalShown } = this.state;
 
     return (
       <div>
@@ -117,10 +105,11 @@ export default class App extends Component {
 
         {status === 'resolved' && <Button onClick={this.fetchPhotos} />}
 
-        {this.state.modalShown && (
+        {modalShown && (
           <Modal
-            largeImage={this.state.largeImageUrl}
-            onCloseModal={this.onCloseModal}
+            tags={tags}
+            largeImage={largeImageURL}
+            closeModal={this.closeModal}
           />
         )}
 

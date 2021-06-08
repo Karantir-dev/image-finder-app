@@ -101,6 +101,7 @@ img {
   outline: none;
   padding-left: 4px;
   padding-right: 4px;
+  line-height: normal;
 }
 
 .SearchForm-input::placeholder {
@@ -113,15 +114,18 @@ img {
  */
 .ImageGallery {
   display: grid;
-  max-width: calc(100vw - 48px);
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  max-width: calc(100vw - 30px);
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   grid-gap: 16px;
-  margin-top: 16px;
-  margin-bottom: 0;
+  margin: 16px auto 0;
   padding: 0;
   list-style: none;
-  margin-left: auto;
-  margin-right: auto;
+}
+
+@media screen and (min-width: 768px) {
+  .ImageGallery {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
 }
 
 /*
@@ -162,7 +166,8 @@ img {
   z-index: 1200;
 }
 
-.Modal {
+.ModalImg {
+  object-fit: contain;
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 24px);
 }
